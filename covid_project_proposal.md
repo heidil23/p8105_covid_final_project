@@ -27,12 +27,18 @@ disease and vaccinations.
 -   CDC’s COVID-19 deaths by: [Sex and
     age](https://data.cdc.gov/NCHS/Provisional-COVID-19-Deaths-by-Sex-and-Age/9bhg-hcku),
     [Race and Hispanic
-    origin](https://data.cdc.gov/NCHS/Provisional-COVID-19-Deaths-Distribution-of-Deaths/pj7m-y5uh)
+    origin](https://data.cdc.gov/NCHS/Provisional-COVID-19-Deaths-Distribution-of-Deaths/pj7m-y5uh),
+    [Week and
+    Urbanicity](https://data.cdc.gov/NCHS/Provisional-COVID-19-Deaths-by-Week-and-Urbanicity/hkhc-f7hg),
+    [Educational
+    Attainment](https://data.cdc.gov/NCHS/AH-Provisional-COVID-19-Deaths-by-Race-and-Educati/i6ej-9eac)
 -   [CDC’s Vaccine hesitancy for COVID-19: county and local
     estimates](https://data.cdc.gov/Vaccinations/Vaccine-Hesitancy-for-COVID-19-County-and-local-es/q9mh-h2tw)
--   [COVID-19 Vaccine Distribution Allocations by Jurisdiction -
-    Pfizer](https://data.cdc.gov/Vaccinations/COVID-19-Vaccine-Distribution-Allocations-by-Juris/saz5-9hgg)
--   [COVID-19 vaccinations in the United States,
+-   CDC’s COVID-19 Vaccine Distribution Allocations by Jurisdiction -
+    [Pfizer](https://data.cdc.gov/Vaccinations/COVID-19-Vaccine-Distribution-Allocations-by-Juris/saz5-9hgg),
+    [Moderna](https://data.cdc.gov/Vaccinations/COVID-19-Vaccine-Distribution-Allocations-by-Juris/b7pe-5nws),
+    [J&J](https://data.cdc.gov/Vaccinations/COVID-19-Vaccine-Distribution-Allocations-by-Juris/w9zu-fywh)
+-   [CDC’s COVID-19 vaccinations in the United States,
     County](https://data.cdc.gov/Vaccinations/COVID-19-Vaccinations-in-the-United-States-County/8xkx-amqh)
 
 ## Intended final products
