@@ -1,5 +1,5 @@
 ---
-  title: "COVID-19"
+title: "COVID-19"
 date: "11/19/2021"
 output: github_document 
 ---
@@ -9,7 +9,6 @@ library(tidyverse)
 library(lubridate)
 library(broom)
 library(knitr)
-library(gt)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -82,6 +81,55 @@ lm_df =
 # both have significant p-value while "date" weights more than "cases_7day" in predicting the deaths_7day. So should adjust regression for time series.
 ```
 
+## assuming increase rate analysis for before and after vaccine
+```{r vaccine before}
+# if assuming 2% increase per day since I did not calculate
+before_vac <- 0:284 
+#from 2020 March 1st to 12.14 the first vaccine available in the US=9*30 + 14
+
+  cases =
+    round(104*(1.02^before_vac), digits = 0) 
+#104 cases from above US aggregation data on 2020 3.2
+  
+  rbind(before_vac, cases)
+
+# and the number of increasing 
+  ggplot() + 
+    geom_point(aes(x = before_vac, y = cases)) + 
+    geom_line(aes(x = before_vac, y = cases)) + 
+    xlab("Day") + 
+    ylab("Total Cases")
+  
+# exponential increment
+```
+
+```{r after vaccine}
+# if assuming 1% increase per day after vaccine (maybe can use R0 from CDC) till day 385
+after_vac <- 285:385
+
+# data for without vaccine
+without_vac <- c(before_vac, after_vac)
+cases_after <- round(104*(1.02^without_vac),digits = 0)
+
+# data with vaccine
+case_vac.285to300 =
+    round(cases[285]*(1.01^(1:101)), digits = 0) 
+
+# plot comparing hypothesized increase for before and after vaccine
+  ggplot() + 
+    geom_line(aes(x = without_vac,
+                  y = cases_after)) +
+    geom_point(aes(x = before_vac, 
+                   y = cases)) + 
+    geom_line(aes(x = after_vac, 
+                  y = case_vac.285to300), col = "blue") +
+    xlab("Day") + 
+    ylab("Total Cases")
+
+  #(if the increase rate under without and with vaccine is known) graph can show vaccine and bending the curve of cases increment (without interfere-black, with interfere-blue)
+  #can compare this with actual cases number see if the vaccine is as effective as our model
+  
+```
 -   Similar graphs with markers for initiation of vaccine distribution
 -   Bar graphs showing differences in COVID-19 deaths by different
     subgroups (age, sex, race, etc.)
