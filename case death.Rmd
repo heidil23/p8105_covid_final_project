@@ -1,0 +1,90 @@
+---
+  title: "COVID-19"
+date: "11/19/2021"
+output: github_document 
+---
+
+```{r setup}
+library(tidyverse)
+library(lubridate)
+library(broom)
+library(knitr)
+library(gt)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Modeling case death
+```{r}
+# change the us_states_long data in weekly average
+us_states <- us_states_long %>%
+  # discard dates before cases were tracked.
+  filter(date > as.Date("2020-03-01")) %>%
+  pivot_wider(names_from = "data_type", values_from = "value") %>%
+  rename(state = location) %>%
+  select(date, state, cases_total, deaths_total) %>%
+  mutate(state = as_factor(state)) %>%
+  arrange(state, date) %>%
+  group_by(state) %>%
+  # smooth the data with 7 day moving average
+  mutate(cases_7day = (cases_total - lag(cases_total, 7)) / 7) %>%
+  mutate(deaths_7day = (deaths_total - lag(deaths_total, 7)) / 7)
+
+# national level aggregation
+us <- us_states %>%
+  group_by(date) %>%
+  summarize(across(
+    .cols = where(is.double),
+    .fns = function(x) sum(x, na.rm = T),
+    .names = "{col}"
+  ))
+
+us[10:20, ] %>%
+  gt() %>%
+  tab_options(table.width = "80%") %>%
+  opt_all_caps()
+```
+
+```{r}
+# Line graphs showing trends in cases and deaths in the U.S. and NYC, respectively
+coeff <- 20   # deaths_7day is too small to plot at the same time with cases so I just add a random number to make deaths_7day more visible, "10" is not work so well, ~30 seems more suitable 
+us %>%
+  ggplot(aes(date, cases_7day)) +
+  geom_line(color = "orange") +
+  theme(legend.position = "none") +
+  geom_line(aes(x = date, y = deaths_7day * coeff), color = "red") +
+  scale_y_continuous(
+    labels = scales::comma,
+    name = "Cases",
+    sec.axis = sec_axis(deaths_7day ~ . / coeff,
+      name = "Deaths",
+      labels = scales::comma
+    )
+  ) +
+  theme(
+    axis.title.y = element_text(color = "orange", size = 13),
+    axis.title.y.right = element_text(color = "red", size = 13)
+  ) +
+  labs(
+    title = "U.S. Cases vs. Deaths",
+    subtitle = "7-Day Average",
+    caption = "Source: NY Times, Arthur Steinmetz",
+    x = "Date"
+  )
+# cases rises while deaths smoothly diminish?
+```
+
+```{r}
+#  linear regression lines showing case rates and death rates
+lm_df = 
+  lm(deaths_7day ~ cases_7day + date, data = us) %>%
+  broom::tidy() 
+
+# both have significant p-value while "date" weights more than "cases_7day" in predicting the deaths_7day. So should adjust regression for time series.
+```
+
+-   Similar graphs with markers for initiation of vaccine distribution
+-   Bar graphs showing differences in COVID-19 deaths by different
+    subgroups (age, sex, race, etc.)
+-   Line graph showing trends in mask usage, disease rates, and vaccine
+    rates
+
