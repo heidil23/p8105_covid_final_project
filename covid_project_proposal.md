@@ -45,7 +45,7 @@ disease and vaccinations.
 
 -   Line graphs showing trends in cases and deaths in the U.S. and NYC,
     respectively
--   Similar graphs with markers for intiation of vaccine distribution
+-   Similar graphs with markers for initiation of vaccine distribution
 -   Bar graphs showing differences in COVID-19 deaths by different
     subgroups (age, sex, race, etc.)
 -   Line graph showing trends in mask usage, disease rates, and vaccine
@@ -57,15 +57,21 @@ disease and vaccinations.
     death rates before and after vaccination
 -   Seasonal rates of COVID-19 infection, will subset data by quarters
 
+Maps can be combined using plotly Make some of the figures/maps
+interactive
+
 ## Planned analyses
 
 We are interested in exploring the theoretical effect that the vaccine
 can have on reducing the spread of the virus and how this compares with
-the trajectory of cases we are experiencing in the U.S.
+the trajectory of cases we are experiencing in the U.S. - linear models
+for case rates before and after vaccine roll-out - predictive factors
+for vaccination/vaccine hesitancy
 
 ## Planned timeline
 
--   11/14-11/20: Project review meeting, exploratory data analysis
+-   11/14-11/20: Project review meeting, exploratory data analysis,
+    website layout
 -   11/21-11/27: Data visualization with graphs, charts, tables
 -   11/28-12/3: Results analysis, discussion, and conclusions
 -   12/3-12/6: Editing, final touches
