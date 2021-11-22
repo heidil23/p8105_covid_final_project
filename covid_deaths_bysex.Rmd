@@ -1,0 +1,64 @@
+---
+title: "11-21"
+author: "Kaila Boyer"
+date: "11/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(readr)
+library(rvest)
+library(httr)
+library(lubridate)
+#us_states_long <- read_rds(us_states_long.rdata)
+
+
+
+```
+## Load Data
+```{r}
+
+death_age_sex <- GET("https://data.cdc.gov/resource/9bhg-hcku.csv") %>% 
+                        content("parsed") %>% mutate(start_date = ymd(start_date), 
+                                                      end_date = ymd(end_date))
+#combined set
+all <- death_age_sex %>% select(start_date, end_date, state,sex,  age_group, covid_19_deaths) %>% 
+                         filter(sex == "All Sexes") %>% mutate(start_date = ymd(start_date), 
+                                                                end_date = ymd(end_date))
+
+Hmisc::describe(all$end_date)
+
+# females only
+female <- death_age_sex %>% select(start_date, end_date, state,sex,  age_group, covid_19_deaths) %>% 
+                            filter(sex == "Female") %>% mutate(start_date = ymd(start_date), 
+                                                                  end_date = ymd(end_date))
+# males only 
+male <- death_age_sex %>% select(start_date, end_date, state,sex,  age_group, covid_19_deaths) %>% 
+                          filter(sex == "Male") %>% mutate(start_date = ymd(start_date), 
+                                                            end_date = ymd(end_date))
+
+```
+
+## Graph of deaths by sex 
+```{r}
+
+death_age_sex %>% filter(sex == "Male" | sex == "Female" ) %>% 
+                  filter(age_group == "0-17 years"| age_group ==  "18-29 years" |age_group == "30-39 years" 
+                         | age_group == "40-49 years" | age_group == "50-64 years"| 
+                           age_group ==  "65-74 years"| age_group ==  "75-84 years" | age_group == "85 years and over") %>% 
+  mutate(age_group = fct_reorder(age_group, age_group)) %>% 
+  ggplot(aes(x = age_group, y = covid_19_deaths, fill= sex)) + 
+  geom_col(position = "dodge", stat = "identity") + 
+  labs( title = "COVID-19 Deaths by Sex", subtitle = "January 2020 - Novemember 13, 2021") +
+  theme(
+    axis.text.x = element_text(angle = 90), 
+    legend.position = "right", 
+    title = element_text(hjust = 0.5)) + 
+  xlab("Age Group") + 
+  ylab("COVID-19 Deaths") + 
+  scale_fill_manual("Sex",values=c("Navy","dark green")) 
+  
+  
+```
+
