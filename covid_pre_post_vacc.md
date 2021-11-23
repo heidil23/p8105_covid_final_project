@@ -3,6 +3,7 @@ COVID-19 Trends Pre- and Post-Vaccine Wide Availability
 
 ``` r
 library(tidyverse)
+library(patchwork)
 ```
 
 The date 4/19/21 was used as the date when vaccines became available for
@@ -31,33 +32,27 @@ us_covid = read_csv("./data/us.csv") %>%
 
 ``` r
 total_us_case_lm = lm(cases ~ 0 + day, data = us_covid)
-us_covid %>% 
+total_us_case_p = 
+  us_covid %>% 
   ggplot(aes(x = day, y = cases)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ 0 + x) +
   labs(title = "U.S. COVID-19 Cases from 1/21/20 to 11/13/21",
        x = "Date", y = "Cases")
-```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-
-``` r
 pre_vacc_case_lm = 
   us_covid %>% 
   slice(1:454) %>% 
   lm(cases ~ 0 + day, data = .)
-us_covid %>% 
+pre_vacc_case_p = 
+  us_covid %>% 
   slice(1:454) %>% 
   ggplot(aes(x = day, y = cases)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ 0 + x) +
-  labs(title = "U.S. COVID-19 Cases from 1/21/20 to 4/18/21 (Pre-Vaccine)",
+  labs(title = "1/21/20 to 4/18/21 (Pre-Vaccine)",
        x = "Date", y = "Cases")
-```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
-
-``` r
 post_vacc_case_lm = 
   us_covid %>% 
   slice(455:663) %>% 
@@ -65,7 +60,7 @@ post_vacc_case_lm =
          new_deaths = deaths - 567314,
          new_day = day - 454) %>%
   lm(new_cases ~ 0 + day, data = .)
-us_covid %>% 
+post_vacc_case_p = us_covid %>% 
   slice(455:663) %>% 
   mutate(new_cases = cases - 31754642,
          new_deaths = deaths - 567314,
@@ -73,43 +68,38 @@ us_covid %>%
   ggplot(aes(x = new_day, y = new_cases)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ 0 + x) +
-  labs(title = "U.S. COVID-19 Cases from 4/19/21 to 11/13/21 (Post-Vaccine)",
+  labs(title = "4/19/21 to 11/13/21 (Post-Vaccine)",
        x = "Date", y = "Cases")
+
+total_us_case_p / (pre_vacc_case_p + post_vacc_case_p)
 ```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->
+![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ## Deaths
 
 ``` r
 total_us_death_lm = lm(deaths ~ 0 + day, data = us_covid)
-us_covid %>% 
+total_us_death_p = us_covid %>% 
   ggplot(aes(x = day, y = deaths)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ 0 + x) +
   labs(title = "U.S. COVID-19 Deaths from 1/21/20 to 11/13/21",
        x = "Date", y = "Deaths")
-```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
-``` r
 pre_vacc_death_lm = 
   us_covid %>% 
   slice(1:454) %>% 
   lm(deaths ~ 0 + day, data = .)
-us_covid %>% 
+pre_vacc_death_p = 
+  us_covid %>% 
   slice(1:454) %>% 
   ggplot(aes(x = day, y = deaths)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ 0 + x) +
-  labs(title = "U.S. COVID-19 Deaths from 1/21/20 to 4/18/21 (Pre-Vaccine)",
+  labs(title = "1/21/20 to 4/18/21 (Pre-Vaccine)",
        x = "Date", y = "Deaths")
-```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
-
-``` r
 post_vacc_death_lm = 
   us_covid %>% 
   slice(455:663) %>% 
@@ -117,7 +107,8 @@ post_vacc_death_lm =
          new_deaths = deaths - 567314,
          new_day = day - 454) %>%
   lm(new_deaths ~ 0 + day, data = .)
-us_covid %>% 
+post_vacc_death_p = 
+  us_covid %>% 
   slice(455:663) %>% 
   mutate(new_cases = cases - 31754642,
          new_deaths = deaths - 567314,
@@ -125,11 +116,13 @@ us_covid %>%
   ggplot(aes(x = new_day, y = new_deaths)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ 0 + x) +
-  labs(title = "U.S. COVID-19 Deaths from 4/19/21 to 11/13/21 (Post-Vaccine)",
+  labs(title = "4/19/21 to 11/13/21 (Post-Vaccine)",
        x = "Date", y = "Deaths")
+
+total_us_death_p / (pre_vacc_death_p + post_vacc_death_p)
 ```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ## Slopes
 
@@ -170,33 +163,27 @@ us_covid = read_csv("./data/us.csv") %>%
 
 ``` r
 total_us_case_lm = lm(cases ~ day, data = us_covid)
-us_covid %>% 
+total_us_case_p = 
+  us_covid %>% 
   ggplot(aes(x = day, y = cases)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
   labs(title = "U.S. COVID-19 Cases from 1/21/20 to 11/13/21",
        x = "Date", y = "Cases")
-```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
-
-``` r
 pre_vacc_case_lm = 
   us_covid %>% 
   slice(1:454) %>% 
   lm(cases ~ day, data = .)
-us_covid %>% 
+pre_vacc_case_p = 
+  us_covid %>% 
   slice(1:454) %>% 
   ggplot(aes(x = day, y = cases)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  labs(title = "U.S. COVID-19 Cases from 1/21/20 to 4/18/21 (Pre-Vaccine)",
+  labs(title = "1/21/20 to 4/18/21 (Pre-Vaccine)",
        x = "Date", y = "Cases")
-```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
-
-``` r
 post_vacc_case_lm = 
   us_covid %>% 
   slice(455:663) %>% 
@@ -204,7 +191,8 @@ post_vacc_case_lm =
          new_deaths = deaths - 567314,
          new_day = day - 454) %>%
   lm(new_cases ~ day, data = .)
-us_covid %>% 
+post_vacc_case_p = 
+  us_covid %>% 
   slice(455:663) %>% 
   mutate(new_cases = cases - 31754642,
          new_deaths = deaths - 567314,
@@ -212,43 +200,39 @@ us_covid %>%
   ggplot(aes(x = new_day, y = new_cases)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  labs(title = "U.S. COVID-19 Cases from 4/19/21 to 11/13/21 (Post-Vaccine)",
+  labs(title = "4/19/21 to 11/13/21 (Post-Vaccine)",
        x = "Date", y = "Cases")
+
+total_us_case_p / (pre_vacc_case_p + post_vacc_case_p)
 ```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
+![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ## Deaths
 
 ``` r
 total_us_death_lm = lm(deaths ~ day, data = us_covid)
-us_covid %>% 
+total_us_death_p = 
+  us_covid %>% 
   ggplot(aes(x = day, y = deaths)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
   labs(title = "U.S. COVID-19 Deaths from 1/21/20 to 11/13/21",
        x = "Date", y = "Deaths")
-```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
-``` r
 pre_vacc_death_lm = 
   us_covid %>% 
   slice(1:454) %>% 
   lm(deaths ~ day, data = .)
-us_covid %>% 
+pre_vacc_death_p = 
+  us_covid %>% 
   slice(1:454) %>% 
   ggplot(aes(x = day, y = deaths)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  labs(title = "U.S. COVID-19 Deaths from 1/21/20 to 4/18/21 (Pre-Vaccine)",
+  labs(title = "1/21/20 to 4/18/21 (Pre-Vaccine)",
        x = "Date", y = "Deaths")
-```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
-
-``` r
 post_vacc_death_lm = 
   us_covid %>% 
   slice(455:663) %>% 
@@ -256,7 +240,8 @@ post_vacc_death_lm =
          new_deaths = deaths - 567314,
          new_day = day - 454) %>%
   lm(new_deaths ~ day, data = .)
-us_covid %>% 
+post_vacc_death_p = 
+  us_covid %>% 
   slice(455:663) %>% 
   mutate(new_cases = cases - 31754642,
          new_deaths = deaths - 567314,
@@ -264,11 +249,13 @@ us_covid %>%
   ggplot(aes(x = new_day, y = new_deaths)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  labs(title = "U.S. COVID-19 Deaths from 4/19/21 to 11/13/21 (Post-Vaccine)",
+  labs(title = "4/19/21 to 11/13/21 (Post-Vaccine)",
        x = "Date", y = "Deaths")
+
+total_us_death_p / (pre_vacc_death_p + post_vacc_death_p)
 ```
 
-![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](covid_pre_post_vacc_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ## Slopes
 
