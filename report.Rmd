@@ -4,6 +4,7 @@ output:
   html_document:
     toc: true
     toc_float: true
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -54,9 +55,18 @@ How did the release of vaccines affect the case and death rates in NYC and acros
 
 How do the seasonal/quarterly rates of COVID-19 infection differ and are they significantly different for the same seasons/quarters pre- and post-vaccine availability?
 
-## Results
+## Results (links to other pages)
 
 Link to other pages
+
+- Covid case rates (need a file for this)
+- [Covid deaths](covid_deaths.html)
+
+- [Vaccine hesitancy](vaccine_hesitancy.html)
+- Vaccination rates (part of percent vax eth-race file)
+
+- Covid pre post vaccine file (clarify what this shows)
+- Case death file (shows how death rate changed after vaccination)
 
 ## Discussion
 

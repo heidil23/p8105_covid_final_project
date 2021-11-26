@@ -9,9 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Heidi Lumish" />
 
+<meta name="date" content="2021-11-23" />
 
-<title>Report</title>
+<title>11-21</title>
 
 <script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -29,9 +31,6 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
@@ -225,69 +224,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-@media print {
-.toc-content {
-  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
-  float: right;
-}
-}
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -295,16 +231,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -347,56 +273,43 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Report</h1>
+<h1 class="title toc-ignore">11-21</h1>
+<h4 class="author">Heidi Lumish</h4>
+<h4 class="date">11/23/2021</h4>
 
 </div>
 
 
-<div id="methods" class="section level2">
-<h2>Methods</h2>
-<div id="data-sources" class="section level4">
-<h4>Data Sources</h4>
-<ul>
-<li><a href="https://github.com/nytimes/covid-19-data/">NY Times COVID-19 data set</a></li>
-<li><a href="https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations">Our World COVID-19 data</a></li>
-<li><a href="https://data.cdc.gov/Case-Surveillance/United-States-COVID-19-Cases-and-Deaths-by-State-o/9mfq-cb36">CDC’s United States COVID-19 Cases and Deaths by State Over Time</a></li>
-<li>CDC’s COVID-19 deaths by: <a href="https://data.cdc.gov/NCHS/Provisional-COVID-19-Deaths-by-Sex-and-Age/9bhg-hcku">Sex and age</a>, <a href="https://data.cdc.gov/NCHS/Provisional-COVID-19-Deaths-Distribution-of-Deaths/pj7m-y5uh">Race and Hispanic origin</a>, <a href="https://data.cdc.gov/NCHS/Provisional-COVID-19-Deaths-by-Week-and-Urbanicity/hkhc-f7hg">Week and Urbanicity</a>, <a href="https://data.cdc.gov/NCHS/AH-Provisional-COVID-19-Deaths-by-Race-and-Educati/i6ej-9eac">Educational Attainment</a></li>
-<li><a href="https://data.cdc.gov/Vaccinations/Vaccine-Hesitancy-for-COVID-19-County-and-local-es/q9mh-h2tw">CDC’s Vaccine hesitancy for COVID-19: county and local estimates</a></li>
-<li>CDC’s COVID-19 Vaccine Distribution Allocations by Jurisdiction - <a href="https://data.cdc.gov/Vaccinations/COVID-19-Vaccine-Distribution-Allocations-by-Juris/saz5-9hgg">Pfizer</a>, <a href="https://data.cdc.gov/Vaccinations/COVID-19-Vaccine-Distribution-Allocations-by-Juris/b7pe-5nws">Moderna</a>, <a href="https://data.cdc.gov/Vaccinations/COVID-19-Vaccine-Distribution-Allocations-by-Juris/w9zu-fywh">J&amp;J</a></li>
-<li><a href="https://data.cdc.gov/Vaccinations/COVID-19-Vaccinations-in-the-United-States-County/8xkx-amqh">CDC’s COVID-19 vaccinations in the United States, County</a></li>
-</ul>
+<div id="load-data" class="section level2">
+<h2>Load Data</h2>
+<p>January 1, 2020 to November 13, 2021</p>
+<pre><code>## Rows: 1000 Columns: 13</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (4): state, age_group_new, race_and_hispanic_origin, footnote
+## dbl  (6): covid_19_deaths, total_deaths, pneumonia_deaths, pneumonia_and_cov...
+## dttm (3): data_as_of, start_week, end_week</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre><code>## 
+##        0-17 years         1-4 years       15-24 years       18-29 years 
+##                66                66                66                66 
+##       25-34 years       30-49 years       35-44 years       45-54 years 
+##                66                66                66                66 
+##        5-14 years       50-64 years       55-64 years       65-74 years 
+##                66                66                66                66 
+##       75-84 years 85 years and over          All Ages      Under 1 year 
+##                66                66                 9                67</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;race_and_hispanic_origin&#39;. You can override using the `.groups` argument.</code></pre>
 </div>
-<div id="research-questions" class="section level4">
-<h4>Research Questions</h4>
-<p>How do trends in cases and deaths compare in the U.S. and NYC (and globally) from January 2020 to November 2021?</p>
-<p>How has the vaccine been distributed in these areas? What are the rates of uptake/vaccination?</p>
-<p>What are the differences in COVID-19 deaths by different subgroups (age, sex, race, etc.)? Are these differences statistically significant?</p>
-<p>What are the trends in mask usage, disease rates, and vaccine rates and how are they related to one another or isolated by region?</p>
-<p>What are trends in vaccination, vaccine hesitancy, and allocation of vaccine type and how do they compare across NYC and the United States?</p>
-<p>How did the release of vaccines affect the case and death rates in NYC and across the country? Did they have an effect? What about in areas with low vs high vaccination rates?</p>
-<p>How do the seasonal/quarterly rates of COVID-19 infection differ and are they significantly different for the same seasons/quarters pre- and post-vaccine availability?</p>
-</div>
-</div>
-<div id="results-links-to-other-pages" class="section level2">
-<h2>Results (links to other pages)</h2>
-<p>Link to other pages</p>
-<ul>
-<li><p>Covid case rates (need a file for this)</p></li>
-<li><p><a href="covid_deaths.html">Covid deaths</a></p></li>
-<li><p><a href="vaccine_hesitancy.html">Vaccine hesitancy</a></p></li>
-<li><p>Vaccination rates (part of percent vax eth-race file)</p></li>
-<li><p>Covid pre post vaccine file (clarify what this shows)</p></li>
-<li><p>Case death file (shows how death rate changed after vaccination)</p></li>
-</ul>
-</div>
-<div id="discussion" class="section level2">
-<h2>Discussion</h2>
+<div id="graph-of-deaths-by-race" class="section level2">
+<h2>Graph of deaths by race</h2>
+<p><img src="covid_deaths_by_race_education_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
 </div>
 
 
 
-</div>
-</div>
 
 </div>
 
@@ -434,35 +347,6 @@ $(document).ready(function () {
 });
 </script>
 
-<script>
-$(document).ready(function ()  {
-
-    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
-    $('.unlisted.unnumbered').addClass('toc-ignore')
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
