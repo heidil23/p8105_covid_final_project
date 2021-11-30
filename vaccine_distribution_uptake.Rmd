@@ -1,7 +1,7 @@
 ---
 title: "Visualizations"
 date: "11/21/2021"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -82,10 +82,10 @@ Map of percentage vaccinated
 ```{r}
 pal = colorNumeric("viridis", NULL)
 
-#map_df %>% 
-  #leaflet() %>% 
-  #addTiles() %>% 
-  #addCircleMarkers(~longitude, ~latitude, color = ~pal(people_fully_vaccinated_per_hundred))
+map_df %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addCircleMarkers(~longitude, ~latitude, color = ~pal(people_fully_vaccinated_per_hundred))
 
 #Work on creating choropleth map (?)
 ```
@@ -137,8 +137,6 @@ pfizer_df =
   filter(!(jurisdiction %in% c("Virgin Islands", "Veterans Health","Republic of Palau", "Puerto Rico", "Northern Mariana Islands", "Marshall Islands", "Indian Health Svc", "Guam", "Federated States of Micronesia", "District of Columbia", "Dept of Defense", "Bureau of Prisons", "American Samoa", "United States", "Federal Entities", "Mariana Islands", "Micronesia", "Palau", "U.S. Virgin Islands"))) %>% 
   group_by(jurisdiction) %>% 
   summarize(sum_of_first = sum(x1st_dose_allocations)) %>% 
-  mutate(
-    sum_of_first = sum_of_first * 2) %>%
   rename(pfizer = sum_of_first)
 ```
 
@@ -151,8 +149,6 @@ moderna_df =
   filter(!(jurisdiction %in% c("Virgin Islands", "Veterans Health","Republic of Palau", "Puerto Rico", "Northern Mariana Islands", "Marshall Islands", "Indian Health Svc", "Guam", "Federated States of Micronesia", "District of Columbia", "Dept of Defense", "Bureau of Prisons", "American Samoa", "United States", "Federal Entities", "Mariana Islands", "Micronesia", "Palau", "U.S. Virgin Islands"))) %>% 
   group_by(jurisdiction) %>% 
   summarize(sum_of_first = sum(x1st_dose_allocations)) %>% 
-  mutate(
-    sum_of_first = sum_of_first * 2) %>%
   rename(moderna = sum_of_first)
 ```
 
@@ -175,7 +171,7 @@ pfizer_moderna_df =
   merge(pfizer_df, moderna_df, by = "jurisdiction")
 
 all_vacc_df = 
-  merge(pfizer_moderna_df, jj_df, by = "jurisdiction") %>% 
+  merge(pfizer_moderna_df, jj_df, by = "jurisdiction") %>%  
   pivot_longer(
     pfizer:jj,
     names_to = "vaccine",
@@ -185,12 +181,46 @@ all_vacc_df =
 Plot
 
 ```{r}
+total_allocation = 
+  all_vacc_df %>% 
+  group_by(jurisdiction) %>% 
+  summarize(sum = sum(doses_allocated)) %>% 
+  mutate(
+    jurisdiction = fct_reorder(jurisdiction, sum)
+  ) %>% 
+  ggplot(aes(x = jurisdiction, y = sum)) +
+  geom_point() +
+  labs(
+    x = "State",
+    y = "Number of Doses Distributed",
+    title = "Total Number of Vaccines Distributed to Each State") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(text = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+```{r}
 # Could possibly make this into a plotly...Having a hard time deciding how to best show this allocation
 
-all_vacc_df %>% 
+type_allocation =  
+ all_vacc_df %>% 
+  mutate(
+    jurisdiction = fct_reorder(jurisdiction, doses_allocated)
+  ) %>% 
   ggplot(aes(x = jurisdiction, y = doses_allocated, color = vaccine)) +
   geom_point() +
-   theme(text = element_text(size = 8),
-        axis.text.x = element_text(angle = 90, hjust = 1)) 
+  labs(
+    x = "States",
+    y = "Doses Allocated",
+    title = "Dose Allocation by Type in Each State") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(text = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_color_discrete(name = "Vaccine", labels = c("Janssen", "Moderna", "Pfizer"))
+```
+
+```{r}
+gridExtra::grid.arrange(total_allocation, type_allocation)
 ```
 
