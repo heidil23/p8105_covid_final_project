@@ -1,0 +1,112 @@
+---
+title: "vaccination hesitant"
+author: "Kaila Boyer"
+date: "11/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library(readr)
+library(rvest)
+library(httr)
+library(lubridate)
+```
+
+```{r}
+vax <- GET("https://data.cdc.gov/resource/q9mh-h2tw.csv") %>% content("parsed")
+
+vax <- vax %>% select(county_name, state, estimated_hesitant, estimated_hesitant_or_unsure,
+                      estimated_strongly_hesitant, social_vulnerability_index, svi_category,
+                      percent_adults_fully, percent_hispanic, percent_non_hispanic_american,
+                      percent_non_hispanic_asian, percent_non_hispanic_black, 
+                      percent_non_hispanic_native, percent_non_hispanic_white)
+
+GET("https://data.cdc.gov/resource/hkhc-f7hg.csv")
+```
+
+
+```{r}
+vax_1 <- vax %>% group_by(state) %>% summarise(mean_hesitant = mean(estimated_hesitant, na.rm = T)*100, 
+                                      mean_hes_unsure = mean(estimated_hesitant_or_unsure, na.rm = T)*100, 
+                                      mean_strong_hesitant = mean(estimated_strongly_hesitant, na.rm = T)*100, total_hesitant = sum(mean_hes_unsure, mean_strong_hesitant, mean_hesitant))  %>% arrange(desc(total_hesitant)) %>% select(state, total_hesitant, everything()) 
+
+
+#making plot about vaccine hesitancy by state (combined mean % of the 3 vax hesitancy categories)
+vax_1 %>% ggplot(aes(x = reorder(state, +total_hesitant), y = total_hesitant)) + 
+  geom_col(fill = "Navy blue") +
+  coord_flip() + 
+  xlab("State")+ 
+  ylab("Total % of Vaccine Hesitancy") + 
+  theme_minimal()
+
+```
+
+```{r}
+# want to look at hesitancy and svi then race 
+vax_2 <- vax %>% select(state, social_vulnerability_index, svi_category, percent_hispanic, percent_non_hispanic_white, percent_non_hispanic_asian, percent_non_hispanic_black, percent_non_hispanic_native, estimated_hesitant, estimated_hesitant_or_unsure,estimated_strongly_hesitant) 
+
+vax_2 <- vax_2 %>% group_by(state) %>%
+  summarise(mean_hesitant = mean(estimated_hesitant, na.rm = T)*100, 
+            mean_hes_unsure = mean(estimated_hesitant_or_unsure, na.rm = T)*100, 
+            mean_strong_hesitant = mean(estimated_strongly_hesitant, na.rm = T)*100,
+            total_hesitant = sum(mean_hes_unsure, mean_strong_hesitant, mean_hesitant), 
+            mean_percent_hisp = mean(percent_hispanic, na.rm = T)*100, 
+            mean_NH_black = mean(percent_non_hispanic_black, na.rm = T)*100, 
+            mean_NH_asian = mean(percent_non_hispanic_asian, na.rm = T)*100, 
+            mean_NH_white = mean(percent_non_hispanic_white, na.rm = T)*100, 
+            mean_NH_native = mean(percent_non_hispanic_native, na.rm = T)*100)
+
+vax_2a <- vax_2 %>% group_by(state) %>% pivot_longer(
+  cols = c(mean_NH_white, mean_NH_black, mean_NH_native, mean_NH_asian, mean_percent_hisp), 
+  names_to = "ethnicity", 
+  values_to = "percent"
+)
+
+#not a fan of this plot 
+vax_2a %>% ggplot(aes(x = state, y = percent, fill = ethnicity)) + 
+  geom_col(position = "stack") +
+  scale_fill_viridis_d()+
+  theme( 
+    axis.text.x = element_text(angle = 90)) + 
+  ylab("Percent") + 
+  xlab("State") 
+
+#is there a significant difference of vaccine hesitancy and race/ethnicity - odd result 
+fit1 <- lm(total_hesitant ~ as.factor(ethnicity), data = vax_2a)
+summary(fit1)
+
+#looking at strongly hesitant and svi 
+glimpse(vax)
+
+fit2 <- lm(estimated_strongly_hesitant ~ social_vulnerability_index + state, data = vax)
+summary(fit2)
+
+fit2a <- lm(estimated_strongly_hesitant ~ social_vulnerability_index+ percent_hispanic + percent_non_hispanic_white + percent_non_hispanic_asian + percent_non_hispanic_black +  percent_non_hispanic_native , data = vax)
+
+summary(fit2a)
+
+broom::tidy(fit2a)
+```
+# Models for hesitancy and SES
+```{r}
+#outcome : binary (hesitant vs. non-hesitant) --> logistic regression 
+#predictor: social vulnerability index (continuous) 
+#will do a model adjusting for %race of a county & state 
+#can also make a binary variable (white & non-white)
+
+```
+
+## Map stuff for hestiancy 
+```{r}
+glimpse(vax)
+install.packages("leaflet")
+library(leaflet)
+?spplot
+leaflet(vax$county_boundary, "estimated_hesitant")
+```
+
+
