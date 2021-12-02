@@ -1,0 +1,13 @@
+name: "Site yml"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - text: "Home"
+      href: website.html
+    - text: "Report"
+      href: report.html
+
+output:
+  html_document:
+    theme: cerulean

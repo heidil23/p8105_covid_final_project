@@ -1,0 +1,85 @@
+---
+title: "11-21"
+author: "Heidi Lumish"
+date: "11/23/2021"
+output:
+  html_document:
+      code_folding: hide
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(readr)
+library(rvest)
+library(httr)
+library(lubridate)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%", 
+  echo = FALSE,
+  warning = FALSE
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+## Load Data
+January 1, 2020 to November 13, 2021
+
+```{r}
+
+death_race_age <- GET("https://data.cdc.gov/resource/ks3g-spdg.csv") %>% 
+  content("parsed") %>%
+  mutate(start_week = ymd(start_week),
+         end_week = ymd(end_week))
+
+table(death_race_age$age_group_new)
+
+#combined set
+death_race_age_df = 
+  death_race_age %>%
+  select(state, race_and_hispanic_origin, age_group_new, covid_19_deaths) %>% 
+  filter(race_and_hispanic_origin != "Total Deaths",
+         state == "United States",
+         age_group_new == "18-29 years" |
+           age_group_new == "30-49 years" |
+           age_group_new == "50-64 years" | 
+           age_group_new == "65-74 years" | 
+           age_group_new == "75-84 years" | 
+           age_group_new == "85 years and over") %>% 
+  group_by(race_and_hispanic_origin, age_group_new) %>% 
+  summarize(deaths = sum(covid_19_deaths, na.rm = TRUE))
+
+```
+
+## Graph of deaths by race 
+```{r}
+
+death_race_age_df %>% 
+  mutate(age_group = fct_reorder(age_group_new, age_group_new)) %>% 
+  ggplot(aes(x = reorder(race_and_hispanic_origin, deaths), y = deaths, fill = age_group)) + 
+  geom_col(position = "dodge", stat = "identity") + 
+  labs( title = "COVID-19 Deaths by Race and Hispanic Origin", subtitle = "January 2020 - Novemember 13, 2021") +
+  theme(
+    axis.text.x = element_text(angle = 90), 
+    legend.position = "right", 
+    title = element_text(hjust = 0.5)) + 
+  coord_flip() +
+  labs(x = "Race and Hispanic Origin",
+       y = "COVID-19 Deaths",
+       fill = "Age Group") 
+  
+  
+```
+

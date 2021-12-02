@@ -1,0 +1,18 @@
+---
+title: "COVID Vaccine Hesitancy and Vaccination Trends"
+author: Heidi Lumish (hl2738), Louis Sharp (lzs2109), Philip Kim (pk2711), Kayla Boyer (kb3066), Yujia Li (yl4923)
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+## Introduction
+
+Considering the recent and ongoing COVID-19 pandemic, we are interested in understanding how COVID-19 vaccination has impacted the trajectory of the pandemic in the United States and in New York City Specifically. We are interested in comparing trends in COVID-19 cases and deaths pre- and post-vaccination in the United States. We would also like to understand patterns of vaccine hesitancy and how this has impacted vaccine uptake and COVID cases and mortality across the country. To that end, we will use data from the New York Times, Our World in Data, the Centers for Disease Control and Prevention, and the World Health Organization to explore case rates and death rates attributable to COVID-19 from January 2020 until November 2021, as well as vaccination trends and vaccine hesitancy.
+
+## Project Inspiration
+
+The inspiration for this exploratory data analysis was largely drawn from the fact that we are still facing the effects of this pandemic every day in many facets of life. Although school has largely returned to in-person instruction, we are still living in a world polarized by vaccine uptake and mask-wearing opinions, with online conference and meeting tools still at the center of nearly everything we do. Because of the life-altering forces of the pandemic, we have a wealth of data and metrics related to the virus to sift through and attempt to make some sense of. Although there exist numerous dashboards and interpretations of COVID-19 data online, we were interested in how vaccine rollout has affected the spread of the virus and the case and death rates and numbers across the country and globally. We were unable to find this type of analysis easily online and figured it would be a worthwhile question to ask and answer. Comparing trends between areas with large vaccine uptake to those with lower vaccine uptake in addition to stratifying data based on dates when vaccines became readily available should shed some light on its practical effect in combating this global pandemic.
+
+## Webcast
