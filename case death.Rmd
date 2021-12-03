@@ -1,10 +1,10 @@
 ---
-title: "COVID-19"
-date: "11/19/2021"
+title: "COVID-19 cases and deaths"
+date: "12/3/2021"
 output: github_document 
 ---
 
-```{r setup}
+```{r setup, include=FALSE}
 library(tidyverse)
 library(lubridate)
 library(broom)
@@ -12,23 +12,23 @@ library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Modeling case death
+## 1. Tracking the course of the COVID pandemic
+We will use NY Times COVID tracking data from the very beginning of COVID onset to refresh what has happened and what has changed.
 ```{r}
-# change the us_states_long data in weekly average
-us_states <- us_states_long %>%
-  # discard dates before cases were tracked.
+us_states <- 
+  us_states_long %>%
   filter(date > as.Date("2020-03-01")) %>%
-  pivot_wider(names_from = "data_type", values_from = "value") %>%
+  pivot_wider(names_from = "data_type", 
+              values_from = "value") %>%
   rename(state = location) %>%
   select(date, state, cases_total, deaths_total) %>%
   mutate(state = as_factor(state)) %>%
   arrange(state, date) %>%
   group_by(state) %>%
-  # smooth the data with 7 day moving average
-  mutate(cases_7day = (cases_total - lag(cases_total, 7)) / 7) %>%
-  mutate(deaths_7day = (deaths_total - lag(deaths_total, 7)) / 7)
+  mutate(
+    cases_7day = (cases_total - lag(cases_total, 7)) / 7,
+    deaths_7day = (deaths_total - lag(deaths_total, 7)) / 7)
 
-# national level aggregation
 us <- us_states %>%
   group_by(date) %>%
   summarize(across(
@@ -38,14 +38,15 @@ us <- us_states %>%
   ))
 
 us[10:20, ] %>%
-  gt() %>%
-  tab_options(table.width = "80%") %>%
-  opt_all_caps()
-```
+  knitr::kable()
 
+# Hereby, we aggregate the cases and deaths in the unit of 7-day and also added up for national levels. Now we are wondering what is the relationship between positive cases and death? How has it varied as the pandemic has progressed? 
+```
+Through a line graph showing trends in cases and deaths in the U.S, we are able to tentatively examine and hypothesize the correlation between the weekly cases and deaths. 
 ```{r}
-# Line graphs showing trends in cases and deaths in the U.S. and NYC, respectively
-coeff <- 20   # deaths_7day is too small to plot at the same time with cases so I just add a random number to make deaths_7day more visible, "10" is not work so well, ~30 seems more suitable 
+coeff <- 20   
+# Since deaths_7day is too small to plot at the same time with cases, we add a random number to make deaths_7day more visible, "10" is not work so well, ~30 seems more suitable 
+
 us %>%
   ggplot(aes(date, cases_7day)) +
   geom_line(color = "orange") +
@@ -69,26 +70,31 @@ us %>%
     caption = "Source: NY Times, Arthur Steinmetz",
     x = "Date"
   )
-# cases rises while deaths smoothly diminish?
 ```
 
+
+## 2. Trends in cases and deaths
+While the line graph shows that the more cases, the less deaths, it is not a reasonable relationship to conclude. So we turn to use a simple regression to further our question. 
 ```{r}
-#  linear regression lines showing case rates and death rates
 lm_df = 
   lm(deaths_7day ~ cases_7day + date, data = us) %>%
   broom::tidy() 
 
-# both have significant p-value while "date" weights more than "cases_7day" in predicting the deaths_7day. So should adjust regression for time series.
+# While the predictors both have significant p-value"date" weights more than "cases_7day" in predicting the deaths_7day. Therefore, we suggest to adjust the deaths versus cases by time series if the deaths want to be predicted by cases weekly.
 ```
+Overall, the death rate has lowered as well as the positive cases has slowed down/ turned from its exponential increment. But how does this happen? Can we ascribe this to the accessibility of vaccination?
 
-## assuming increase rate analysis for before and after vaccine
+## 3. The effectiveness of vaccine
+By taking calculated incidence rates from CDC, which suggests cases among persons who were not fully vaccinated compared with those among fully vaccinated persons decreased from 11.1 to 4.6, we try to model a hypothesized comparison between cases trend line from the onset of pandemic and see how that would bend when the very first vaccine is available. 
+
+CDC Reference: Scobie HM, Johnson AG, Suthar AB, et al. Monitoring Incidence of COVID-19 Cases, Hospitalizations, and Deaths, by Vaccination Status — 13 U.S. Jurisdictions, April 4–July 17, 2021. MMWR Morb Mortal Wkly Rep 2021;70:1284–1290. DOI: http://dx.doi.org/10.15585/mmwr.mm7037e1external icon.
 ```{r vaccine before}
-# if assuming 2% increase per day since I did not calculate
-before_vac <- 0:284 
+# assuming 11.1% increase weekly
+before_vac <- 0:284/7
 #from 2020 March 1st to 12.14 the first vaccine available in the US=9*30 + 14
 
   cases =
-    round(104*(1.02^before_vac), digits = 0) 
+    round(104*(1.11^before_vac), digits = 0) 
 #104 cases from above US aggregation data on 2020 3.2
   
   rbind(before_vac, cases)
@@ -99,21 +105,19 @@ before_vac <- 0:284
     geom_line(aes(x = before_vac, y = cases)) + 
     xlab("Day") + 
     ylab("Total Cases")
-  
-# exponential increment
 ```
 
 ```{r after vaccine}
-# if assuming 1% increase per day after vaccine (maybe can use R0 from CDC) till day 385
-after_vac <- 285:385
+#assuming 4.6% increase weekly after vaccine for another 100 days 
+after_vac <- 285:385/7
 
 # data for without vaccine
 without_vac <- c(before_vac, after_vac)
-cases_after <- round(104*(1.02^without_vac),digits = 0)
+cases_after <- round(104*(1.11^without_vac), digits = 0)
 
 # data with vaccine
 case_vac.285to300 =
-    round(cases[285]*(1.01^(1:101)), digits = 0) 
+    round(cases[285]*(1.046^(1:101)), digits = 0) 
 
 # plot comparing hypothesized increase for before and after vaccine
   ggplot() + 
@@ -126,13 +130,10 @@ case_vac.285to300 =
     xlab("Day") + 
     ylab("Total Cases")
 
-  #(if the increase rate under without and with vaccine is known) graph can show vaccine and bending the curve of cases increment (without interfere-black, with interfere-blue)
-  #can compare this with actual cases number see if the vaccine is as effective as our model
-  
+  # Apparently without any public health control, cases are hard to slow down but does our hypothesized bending curve with vaccine available corresponding to the actual cases number? If it is very different, how long does vaccine take its effectiveness? How does the distribution of vaccine by sex, age, and race etc. demographic characteristics impact on the effectiveness of vaccine distribution and containing cases increment? 
 ```
--   Similar graphs with markers for initiation of vaccine distribution
--   Bar graphs showing differences in COVID-19 deaths by different
-    subgroups (age, sex, race, etc.)
--   Line graph showing trends in mask usage, disease rates, and vaccine
-    rates
+
+```{r}
+case_vac.285to300 
+```
 
