@@ -11,6 +11,7 @@ library(readr)
 library(httr)
 library(leaflet)
 library(ggplot2)
+library(plotly)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -36,7 +37,9 @@ perc_vacc =
   read_csv(file = "./data/us_state_vaccinations.csv") %>%
   filter(date == "2021-11-20") %>%
   filter(!(location %in% c("Virgin Islands", "Veterans Health","Republic of Palau", "Puerto Rico",   "Northern Mariana Islands", "Marshall Islands", "Indian Health Svc", "Guam", "Federated States of Micronesia", "District of Columbia", "Dept of Defense", "Bureau of Prisons", "American Samoa",    "United States"))) %>% 
-  select(location, people_fully_vaccinated_per_hundred)
+  select(location, people_fully_vaccinated_per_hundred) %>% 
+  mutate(
+     location = recode(location, "New York State" = "New York"))
 ```
 
 ```{r}
@@ -49,9 +52,7 @@ latlong_df =
   as.data.frame() %>% 
   select(-state) %>% 
   relocate(name) %>% 
-  rename(location = name) %>% 
-  mutate(
-     location = recode(location, "New York" = "New York State"))
+  rename(location = name)
 ```
 
 Merging of dataset to get lat/long
@@ -82,15 +83,83 @@ map_df %>%
 Map of percentage vaccinated
 
 ```{r}
-pal = colorNumeric("viridis", NULL)
-
-map_df %>% 
-  leaflet() %>% 
-  addTiles() %>% 
-  addCircleMarkers(~longitude, ~latitude, color = ~pal(people_fully_vaccinated_per_hundred))
-
-#Work on creating choropleth map (?)
+perc_vacc_with_date = 
+  read_csv(file = "./data/us_state_vaccinations.csv") %>%
+  filter(!(location %in% c("Virgin Islands", "Veterans Health","Republic of Palau", "Puerto Rico",   "Northern Mariana Islands", "Marshall Islands", "Indian Health Svc", "Guam", "Federated States of Micronesia", "District of Columbia", "Dept of Defense", "Bureau of Prisons", "American Samoa",    "United States"))) %>% 
+  select(location, date, people_fully_vaccinated_per_hundred) %>%
+  mutate(
+     location = recode(location, "New York State" = "New York"))
 ```
+
+Choropleth Map
+
+```{r}
+code_df = read_csv(file = "./data/csvData.csv") %>% 
+  janitor::clean_names() %>% 
+  rename(location = state) %>% 
+  select(location, code)
+
+map_code_df = merge(map_df, code_df , by = "location") %>% 
+  mutate(hover = paste0(location, "\n", people_fully_vaccinated_per_hundred, "%")) %>% 
+  rename(Vaccination_Rate = people_fully_vaccinated_per_hundred)
+
+fontstyle = list(
+  family = "DM Sans",
+  size = 15,
+  color = "black")
+
+label = list(
+  bgcolor = "#EEEEEE",
+  bordercolor = "transparent",
+  font = fontstyle)
+
+choropleth_map_vaccination = 
+  plot_geo(map_code_df,
+          locationmode = "USA-states") %>% 
+  add_trace(locations = ~ code,
+            z = ~ Vaccination_Rate,
+            color = ~ Vaccination_Rate,
+            text = ~ hover,
+            hoverinfo = "text") %>% 
+  style(hoverlabel = label) %>% 
+  layout(geo = list(scope = "usa"),
+         title = "Vaccination Rate in the US") %>% 
+  colorbar(ticksuffix = "%")
+
+choropleth_map_vaccination
+```
+
+Map overtime (doesn't work though?)
+
+```{r}
+test = merge(perc_vacc_with_date, code_df , by = "location") %>% 
+  mutate(hover = paste0(location, "\n", people_fully_vaccinated_per_hundred, "%")) %>% 
+  rename(Vaccination_Rate = people_fully_vaccinated_per_hundred)
+
+fontstyle = list(
+  family = "DM Sans",
+  size = 15,
+  color = "black")
+
+label = list(
+  bgcolor = "#EEEEEE",
+  bordercolor = "transparent",
+  font = fontstyle)
+
+  plot_geo(test,
+          locationmode = "USA-states",
+          frame = ~ date) %>% 
+  add_trace(locations = ~ code,
+            z = ~ Vaccination_Rate,
+            zmin = 0,
+            zmax = 75,
+            color = ~ Vaccination_Rate,
+            text = ~ hover,
+            hoverinfo = "text") %>% 
+  style(hoverlabel = label) %>% 
+  layout(geo = list(scope = "usa"))
+```
+
 
 Now look at total number of vaccines shipped to each state and the number of people vaccinated
 
@@ -122,12 +191,46 @@ uptake_df %>%
         axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-Create choropleth map for this (?)
 
 ```{r}
+uptake_map_df = 
+  uptake_df %>% 
+  mutate(
+    location = recode(location, "New York State" = "New York"))
 
+uptake_code_df = 
+  merge(uptake_map_df, code_df , by = "location") %>%
+  mutate(
+    rate_of_uptake = 100 * rate_of_uptake,
+    rate_of_uptake = round(rate_of_uptake, digits = 2),
+    hover = paste0(location, "\n", rate_of_uptake, "%")) %>% 
+  rename(Uptake_Rate = rate_of_uptake)
+
+fontstyle = list(
+  family = "DM Sans",
+  size = 15,
+  color = "black")
+
+label = list(
+  bgcolor = "#EEEEEE",
+  bordercolor = "transparent",
+  font = fontstyle)
+
+choropleth_map_uptake = 
+  plot_geo(uptake_code_df,
+          locationmode = "USA-states") %>% 
+  add_trace(locations = ~ code,
+            z = ~ Uptake_Rate,
+            color = ~ Uptake_Rate,
+            text = ~ hover,
+            hoverinfo = "text") %>% 
+  style(hoverlabel = label) %>% 
+  layout(geo = list(scope = "usa"),
+         title = "Vaccine Uptake Rate in the US") %>% 
+  colorbar(ticksuffix = "%")
+
+choropleth_map_uptake
 ```
-
 
 Let's look at how the different vaccines are distributed in the US
 
@@ -204,8 +307,6 @@ total_allocation =
 
 
 ```{r}
-# Could possibly make this into a plotly...Having a hard time deciding how to best show this allocation
-
 type_allocation =  
  all_vacc_df %>% 
   mutate(
