@@ -30,7 +30,7 @@ The date 12/14/20 was used as the date when vaccines became available in the U.S
 
 ```{r, message = F}
 us_covid = read_csv("./data/us.csv") %>% 
-  mutate(day = 1:663,
+  mutate(day = 1:685,
          dc_ratio = deaths/cases)
 ```
 
@@ -41,7 +41,7 @@ total_ratio_p =
   us_covid %>% 
   ggplot(aes(x = day, y = dc_ratio)) +
   geom_line() +
-  labs(title = "U.S. Death to Cases Ratio from 1/21/20 to 11/13/21",
+  labs(title = "U.S. Death to Cases Ratio from 1/21/20 to 12/05/21",
        x = "Day", y = "Ratio") +
   geom_vline(xintercept = 329, linetype="solid", 
                 color = "red", size=0.5)
@@ -57,10 +57,10 @@ us_covid %>%
 
 post_vacc_ratio_p = 
 us_covid %>% 
-  slice(329:663) %>% 
+  slice(329:685) %>% 
   ggplot(aes(x = day, y = dc_ratio)) +
   geom_line() +
-  labs(title = "12/14/20 to 11/13/21 (Post-Vaccine)",
+  labs(title = "12/14/20 to 12/05/21 (Post-Vaccine)",
        x = "Day", y = "Ratio") +
   theme(plot.title = element_text(size=10))
 
@@ -78,7 +78,7 @@ total_us_case_p =
   ggplot(aes(x = day, y = cases)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  labs(title = "U.S. COVID-19 Cases from 1/21/20 to 11/13/21",
+  labs(title = "U.S. COVID-19 Cases from 1/21/20 to 12/05/21",
        x = "Day", y = "Cases")
 
 pre_vacc_case_lm = 
@@ -98,16 +98,16 @@ pre_vacc_case_p =
 
 post_vacc_case_lm = 
   us_covid %>% 
-  slice(329:663) %>% 
+  slice(329:685) %>% 
   lm(cases ~ day, data = .) %>% 
   broom::tidy()
 post_vacc_case_p = 
   us_covid %>% 
-  slice(329:663) %>%
+  slice(329:685) %>%
   ggplot(aes(x = day, y = cases)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  labs(title = "12/14/20 to 11/13/21 (Post-Vaccine)",
+  labs(title = "12/14/20 to 12/05/21 (Post-Vaccine)",
        x = "Day", y = "Cases") +
   theme(plot.title = element_text(size=10))
 
@@ -125,7 +125,7 @@ total_us_death_p =
   ggplot(aes(x = day, y = deaths)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  labs(title = "U.S. COVID-19 Deaths from 1/21/20 to 11/13/21",
+  labs(title = "U.S. COVID-19 Deaths from 1/21/20 to 12/05/21",
        x = "Day", y = "Deaths")
 
 pre_vacc_death_lm = 
@@ -145,16 +145,16 @@ pre_vacc_death_p =
 
 post_vacc_death_lm = 
   us_covid %>% 
-  slice(329:663) %>% 
+  slice(329:685) %>% 
   lm(deaths ~ day, data = .) %>% 
   broom::tidy()
 post_vacc_death_p = 
   us_covid %>% 
-  slice(329:663) %>% 
+  slice(329:685) %>% 
   ggplot(aes(x = day, y = deaths)) +
   geom_point() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  labs(title = "12/14/20 to 11/13/21 (Post-Vaccine)",
+  labs(title = "12/14/20 to 12/05/21 (Post-Vaccine)",
        x = "Day", y = "Deaths") +
   theme(plot.title = element_text(size=10))
 
