@@ -1,0 +1,145 @@
+---
+title: "maps"
+author: "Kaila Boyer"
+date: "11/28/2021"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(readr)
+library(rvest)
+library(httr)
+library(lubridate)
+
+knitr::opts_chunk$set(
+  fig.width = 7,
+  fig.asp = .7,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis",
+  scale_colour_discrete = scale_colour_viridis_d,
+scale_fill_discrete = scale_fill_viridis_d
+)
+```
+
+```{r}
+pt1 <- read_csv("hesitant_vax_data_pt1.csv")
+pt2 <- read_csv("hesitant_vax_data_pt2.csv")
+pt3 <- read_csv("hesitant_vax_data_pt3.csv")
+pt4 <- read_csv("hesitant_vax_data_pt4.csv")
+pt5 <- read_csv("hesitant_vax_data_pt5.csv")
+pt6 <- read_csv("hesitant_vax_data_pt6.csv")
+pt7 <- read_csv("hesitant_vax_data_pt7.csv")
+
+data_all <- bind_rows(pt1, pt2, pt3, pt4, pt5, pt6, pt7)
+glimpse(data_all)
+```
+
+```{r}
+state_svi <- data_all %>% 
+  group_by(state) %>% 
+  count(svi_category) %>% 
+  pivot_wider(
+    names_from = svi_category, 
+    values_from = n
+  ) %>% 
+  select(-`NA`) %>% 
+  mutate(
+    state = str_to_lower(state)
+  )
+state_svi[is.na(state_svi)] = 0
+
+state_svi <- state_svi %>% select(`Very High Vulnerability`, 
+                                  `High Vulnerability`, 
+                                  `Moderate Vulnerability`, 
+                                  `Low Vulnerability`, 
+                                  `Very Low Vulnerability`)
+  
+state_svi_neat <- state_svi %>% knitr::kable()
+```
+Graph of hesitant (all options added together) & not hesitant (the difference from the sum of hesitants) by state
+```{r}
+hes <- data_all %>% 
+  select(county_name, state, estimated_hesitant_or_unsure, estimated_hesitant, estimated_strongly_hesitant)
+
+hes1 <- hes %>% 
+  rowwise(county_name) %>% 
+  mutate(not_hesitant = 1 - sum(estimated_hesitant_or_unsure, estimated_hesitant, estimated_strongly_hesitant), 
+         total = sum(not_hesitant, estimated_hesitant_or_unsure, estimated_hesitant, estimated_strongly_hesitant), 
+         any_hesitant = sum(estimated_hesitant_or_unsure, estimated_hesitant, estimated_strongly_hesitant), 
+         hes_binary = if_else(any_hesitant <= 0.50, "low_hes",
+                      if_else(any_hesitant > 0.50, "high_hes", "NA")))
+
+
+hes_long <- hes %>% 
+  pivot_longer( cols = !c(state, county_name),
+    names_to = "hes_category",
+    values_to = "count")
+hes_long %>% count(state)  
+
+library(plotly)
+
+#need to figure out how to expand x axis (all states are there when you roll over - but not written on axis)
+hes_long %>% filter(hes_category == "any_hesitant" | hes_category == "not_hesitant") %>% 
+  mutate(state = as.factor(state)) %>% 
+  plot_ly(x = ~state, y = ~count, color = ~hes_category, type = "bar", colors = "viridis") 
+```
+
+Trying to do a logistic regression with outcome being hesitancy by county 
+using assumption of 70% pop vax to reach herd immunity (any_hesitant >= 70 == hesitant & any_hesitant < 70 == compliant) 
+```{r}
+hes_reg_df <- data_all %>% select(county_name, state, estimated_hesitant_or_unsure, estimated_hesitant, estimated_strongly_hesitant, svi_category, cvac_level_of_concern, cvac_level_of_concern_for_vaccination_rollout, percent_hispanic, percent_non_hispanic_american_indian_alaska_native, percent_non_hispanic_asian, 
+percent_non_hispanic_black, percent_non_hispanic_native_hawaiian_pacific_islander, percent_non_hispanic_white, population) %>% 
+  mutate(
+majority_white = if_else(sum(percent_hispanic, percent_non_hispanic_american_indian_alaska_native, 
+                                                     percent_non_hispanic_asian,percent_non_hispanic_black, percent_non_hispanic_native_hawaiian_pacific_islander) >= 50, "majority_nw", if_else(sum(percent_hispanic, percent_non_hispanic_american_indian_alaska_native,percent_non_hispanic_asian, percent_non_hispanic_black, percent_non_hispanic_native_hawaiian_pacific_islander) < 50, "majority_w", "NA")))
+
+                         
+                         
+hes_reg_df <- hes_reg_df %>% 
+  rowwise(county_name) %>% 
+  mutate(not_hesitant = 1 - sum(estimated_hesitant_or_unsure, estimated_hesitant, estimated_strongly_hesitant), 
+         total = sum(not_hesitant, estimated_hesitant_or_unsure, estimated_hesitant, estimated_strongly_hesitant), 
+         any_hesitant = sum(estimated_hesitant_or_unsure, estimated_hesitant, estimated_strongly_hesitant), 
+         hes_binary = if_else(any_hesitant <= 0.50, "low_hes",
+                      if_else(any_hesitant > 0.50, "high_hes", "NA")))
+
+hes %>% filter(any_hesitant <= 0.50) 
+hes_reg_df$hes_binary <- as.factor(hes_reg_df$hes_binary)
+hes_reg_df$majority_white <- as.factor(hes_reg_df$majority_white)
+
+fit1 <- glm(hes_binary ~  svi_category, data = hes_reg_df, family = "binomial" )
+summary(fit1) 
+fit1 %>% broom::tidy()
+
+fit2 <- glm(hes_binary ~  svi_category + percent_non_hispanic_white, data = hes_reg_df, family = "binomial" )
+summary(fit2) 
+fit2 %>% broom::tidy()
+
+fit3 <- glm(hes_binary ~ cvac_level_of_concern, data = hes_reg_df, family = "binomial" )
+summary(fit3)
+
+fit4 <- glm(hes_binary ~ svi_category + cvac_level_of_concern, data = hes_reg_df, family = "binomial" )
+summary(fit4)
+
+fit5 <-  glm(hes_binary ~ svi_category + population + percent_non_hispanic_white, data = hes_reg_df, family = "binomial" )
+summary(fit5)
+
+fit6<-  glm(hes_binary ~ svi_category + population , data = hes_reg_df, family = "binomial" )
+summary(fit6)
+
+#not working, crashes R and gives errors 
+#fit2 <- glm(hes_binary ~  svi_category + county_name + population, data = hes_reg_df, family = "binomial" )
+
+
+
+
+```
+
+
