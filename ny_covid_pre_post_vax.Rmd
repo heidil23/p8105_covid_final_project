@@ -177,3 +177,5 @@ tibble(
 
 ```
 
+N.Y. State Post-vax/Pre-vax Case Ratio: `r post_vacc_case_lm$estimate[2]/pre_vacc_case_lm$estimate[2]` $\\$
+N.Y. State Post-vax/Pre-vax Death Ratio: `r post_vacc_death_lm$estimate[2]/pre_vacc_death_lm$estimate[2]`

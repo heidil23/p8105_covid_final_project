@@ -175,3 +175,6 @@ tibble(
   knitr::kable()
 
 ```
+
+U.S. Post-vax/Pre-vax Case Ratio: `r post_vacc_case_lm$estimate[2]/pre_vacc_case_lm$estimate[2]` $\\$
+U.S. State Post-vax/Pre-vax Death Ratio: `r post_vacc_death_lm$estimate[2]/pre_vacc_death_lm$estimate[2]`
