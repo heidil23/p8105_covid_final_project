@@ -1,0 +1,60 @@
+---
+title: "All States Plotly"
+output: github_document
+---
+
+```{r, include = F}
+library(tidyverse)
+library(plotly)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+```{r, include = F}
+states = read_csv("./data/us-states.csv") %>% 
+  mutate(dc_ratio = deaths/cases)
+```
+
+```{r, echo = F}
+all_states_cases = 
+  states %>% 
+  ggplot(aes(x = date, y = cases, color = state)) +
+  geom_path() +
+  labs(title = "Cumulative Cases by State",
+       x = "Date",
+       y = "Cases")
+ggplotly(all_states_cases)
+       
+all_states_deaths = 
+  states %>% 
+  ggplot(aes(x = date, y = deaths, color = state)) +
+  geom_path() +
+  labs(title = "Cumulative Deaths by State",
+       x = "Date",
+       y = "Cases")
+ggplotly(all_states_deaths)
+
+all_states_dc_ratio = 
+  states %>% 
+  ggplot(aes(x = date, y = dc_ratio, color = state)) +
+  geom_path() +
+  labs(title = "Deaths/Cases Ratio by State",
+       x = "Date",
+       y = "Deaths/Cases Ratio")
+ggplotly(all_states_dc_ratio)
+```
+
