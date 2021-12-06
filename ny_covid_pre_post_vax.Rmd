@@ -1,0 +1,179 @@
+---
+title: "N.Y. COVID-19 Trends Pre- and Post-Vaccine Availability"
+output: github_document
+---
+
+```{r, include = F}
+library(tidyverse)
+library(patchwork)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+## Data
+
+```{r, message = F}
+ny_covid = 
+  read_csv("./data/us-states.csv") %>% 
+  filter(state == "New York") %>% 
+  mutate(day = 1:645,
+         dc_ratio = deaths/cases) %>% 
+  select(-fips)
+```
+
+## Death/Case Ratio
+
+```{r, echo = F}
+total_ratio_p = 
+  ny_covid %>% 
+  ggplot(aes(x = day, y = dc_ratio)) +
+  geom_line() +
+  labs(title = "N.Y. Death to Cases Ratio from 3/01/20 to 12/05/21",
+       x = "Day", y = "Ratio") +
+  geom_vline(xintercept = 329, linetype="solid", 
+                color = "red", size=0.5)
+
+pre_vacc_ratio_p = 
+  ny_covid %>% 
+  slice(1:288) %>% 
+  ggplot(aes(x = day, y = dc_ratio)) +
+  geom_line() +
+  labs(title = "3/01/20 to 12/13/20 (Pre-Vaccine)",
+       x = "Day", y = "Ratio") +
+  theme(plot.title = element_text(size=10))
+
+post_vacc_ratio_p = 
+  ny_covid %>% 
+  slice(289:645) %>% 
+  ggplot(aes(x = day, y = dc_ratio)) +
+  geom_line() +
+  labs(title = "12/14/20 to 12/05/21 (Post-Vaccine)",
+       x = "Day", y = "Ratio") +
+  theme(plot.title = element_text(size=10))
+
+total_ratio_p / (pre_vacc_ratio_p + post_vacc_ratio_p)
+```
+
+## Cases
+
+```{r, echo = F}
+total_ny_case_lm = 
+  lm(cases ~ day, data = ny_covid) %>% 
+  broom::tidy()
+total_ny_case_p = 
+  ny_covid %>% 
+  ggplot(aes(x = day, y = cases)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  labs(title = "N.Y. COVID-19 Cases from 3/01/20 to 12/05/21",
+       x = "Day", y = "Cases")
+
+pre_vacc_case_lm = 
+  ny_covid %>% 
+  slice(1:328) %>% 
+  lm(cases ~ day, data = .) %>% 
+  broom::tidy()
+pre_vacc_case_p = 
+  ny_covid %>% 
+  slice(1:328) %>% 
+  ggplot(aes(x = day, y = cases)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  labs(title = "3/01/20 to 12/13/20 (Pre-Vaccine)",
+       x = "Day", y = "Cases") +
+  theme(plot.title = element_text(size=10))
+
+post_vacc_case_lm = 
+  ny_covid %>% 
+  slice(329:663) %>% 
+  lm(cases ~ day, data = .) %>% 
+  broom::tidy()
+post_vacc_case_p = 
+  ny_covid %>% 
+  slice(329:663) %>%
+  ggplot(aes(x = day, y = cases)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  labs(title = "12/14/20 to 12/05/21 (Post-Vaccine)",
+       x = "Day", y = "Cases") +
+  theme(plot.title = element_text(size=10))
+
+total_ny_case_p / (pre_vacc_case_p + post_vacc_case_p)
+```
+
+## Deaths
+
+```{r, echo = F}
+total_ny_death_lm = 
+  lm(deaths ~ day, data = ny_covid) %>% 
+  broom::tidy()
+total_ny_death_p = 
+  ny_covid %>% 
+  ggplot(aes(x = day, y = deaths)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  labs(title = "N.Y. COVID-19 Deaths from 3/01/20 to 12/05/21",
+       x = "Day", y = "Deaths")
+
+pre_vacc_death_lm = 
+  ny_covid %>% 
+  slice(1:328) %>% 
+  lm(deaths ~ day, data = .) %>% 
+  broom::tidy()
+pre_vacc_death_p = 
+  ny_covid %>% 
+  slice(1:328) %>% 
+  ggplot(aes(x = day, y = deaths)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  labs(title = "3/01/20 to 12/13/20 (Pre-Vaccine)",
+       x = "Day", y = "Deaths") +
+  theme(plot.title = element_text(size=10))
+
+post_vacc_death_lm = 
+  ny_covid %>% 
+  slice(329:663) %>% 
+  lm(deaths ~ day, data = .) %>% 
+  broom::tidy()
+post_vacc_death_p = 
+  ny_covid %>% 
+  slice(329:663) %>% 
+  ggplot(aes(x = day, y = deaths)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x) +
+  labs(title = "12/14/20 to 12/05/21 (Post-Vaccine)",
+       x = "Day", y = "Deaths") +
+  theme(plot.title = element_text(size=10))
+
+total_ny_death_p / (pre_vacc_death_p + post_vacc_death_p)
+```
+
+## Slopes
+
+```{r, echo = F}
+tibble(
+  metric = c("intercept", "slope"),
+  total_case = pull(total_ny_case_lm, estimate),
+  pre_vacc_case = pull(pre_vacc_case_lm, estimate),
+  post_vacc_case = pull(post_vacc_case_lm, estimate),
+  total_death = pull(total_ny_death_lm, estimate),
+  pre_vacc_death = pull(pre_vacc_death_lm, estimate),
+  post_vacc_death = pull(post_vacc_death_lm, estimate)) %>% 
+  knitr::kable()
+
+```
+
