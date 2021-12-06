@@ -129,11 +129,12 @@ choropleth_map_vaccination =
 choropleth_map_vaccination
 ```
 
-Map overtime (doesn't work though?)
+Map overtime
 
 ```{r}
 test = merge(perc_vacc_with_date, code_df , by = "location") %>% 
-  mutate(hover = paste0(location, "\n", people_fully_vaccinated_per_hundred, "%")) %>% 
+  mutate(hover = paste0(location, "\n", people_fully_vaccinated_per_hundred, "%"),
+         date = as.factor(date)) %>% 
   rename(Vaccination_Rate = people_fully_vaccinated_per_hundred)
 
 fontstyle = list(
@@ -151,15 +152,12 @@ label = list(
           frame = ~ date) %>% 
   add_trace(locations = ~ code,
             z = ~ Vaccination_Rate,
-            zmin = 0,
-            zmax = 75,
             color = ~ Vaccination_Rate,
             text = ~ hover,
             hoverinfo = "text") %>% 
   style(hoverlabel = label) %>% 
   layout(geo = list(scope = "usa"))
 ```
-
 
 Now look at total number of vaccines shipped to each state and the number of people vaccinated
 
@@ -190,7 +188,6 @@ uptake_df %>%
   theme(text = element_text(size = 8),
         axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
-
 
 ```{r}
 uptake_map_df = 
@@ -231,6 +228,79 @@ choropleth_map_uptake =
 
 choropleth_map_uptake
 ```
+
+
+
+```{r}
+test2 = read_csv(file = "./data/us_state_vaccinations.csv") %>%
+  filter(!(location %in% c("Virgin Islands", "Veterans Health","Republic of Palau", "Puerto Rico",   "Northern Mariana Islands", "Marshall Islands", "Indian Health Svc", "Guam", "Federated States of Micronesia", "District of Columbia", "Dept of Defense", "Bureau of Prisons", "American Samoa",    "United States"))) %>% 
+  select(date, location, people_vaccinated, total_distributed) %>% 
+  mutate(
+    rate_of_uptake = people_vaccinated / total_distributed,
+    location = recode(location, "New York State" = "New York"))
+
+test2_df = 
+  merge(test2, code_df , by = "location") %>%
+  mutate(
+    date = as.factor(date),
+    rate_of_uptake = 100 * rate_of_uptake,
+    rate_of_uptake = round(rate_of_uptake, digits = 2),
+    hover = paste0(location, "\n", rate_of_uptake, "%")) %>% 
+  rename(Uptake_Rate = rate_of_uptake)
+
+fontstyle = list(
+  family = "DM Sans",
+  size = 15,
+  color = "black")
+
+label = list(
+  bgcolor = "#EEEEEE",
+  bordercolor = "transparent",
+  font = fontstyle)
+
+choropleth_map_uptake_date = 
+  plot_geo(test2_df,
+          locationmode = "USA-states",
+          frame = ~ date) %>% 
+  add_trace(locations = ~ code,
+            z = ~ Uptake_Rate,
+            color = ~ Uptake_Rate,
+            text = ~ hover,
+            hoverinfo = "text") %>% 
+  style(hoverlabel = label) %>% 
+  layout(geo = list(scope = "usa"),
+         title = "Vaccine Uptake Rate in the US") %>% 
+  colorbar(ticksuffix = "%")
+
+choropleth_map_uptake_date
+```
+
+
+Vaccinated by Uptake Plot
+
+```{r}
+perc_vacc_uptake = 
+  merge(perc_vacc, uptake_df, by = "location") %>% 
+  mutate(
+    rate_of_uptake = 100 * rate_of_uptake,
+    location = fct_reorder(location, people_fully_vaccinated_per_hundred))
+
+colors = c("Percentage Fully Vaccinated" = "blue", "Uptake Rate" = "red")
+
+  ggplot(perc_vacc_uptake, aes(x = location)) +
+  geom_point(aes(y = people_fully_vaccinated_per_hundred, color = "Percentage Fully Vaccinated")) +
+  geom_point(aes(y = rate_of_uptake, color = "Uptake Rate")) +
+  labs(
+    x = "State",
+    y = "Percentage",
+    title = "Percentage of People Fully Vaccinated \nand the Rate of Uptake by State",
+    color = "Legend") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(text = element_text(size = 8),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_color_manual(values = colors)
+```
+
 
 Let's look at how the different vaccines are distributed in the US
 
@@ -324,36 +394,7 @@ type_allocation =
   scale_color_discrete(name = "Vaccine", labels = c("Janssen", "Moderna", "Pfizer"))
 ```
 
-```{r}
-gridExtra::grid.arrange(total_allocation, type_allocation)
-```
-
-```{r}
-gridExtra::grid.arrange(percentage_plot, uptake_plot)
-```
-
-```{r}
-perc_vacc_uptake = 
-  merge(perc_vacc, uptake_df, by = "location") %>% 
-  mutate(
-    rate_of_uptake = 100 * rate_of_uptake,
-    location = fct_reorder(location, people_fully_vaccinated_per_hundred))
-
-colors = c("Percentage Fully Vaccinated" = "blue", "Uptake Rate" = "red")
-
-  ggplot(perc_vacc_uptake, aes(x = location)) +
-  geom_point(aes(y = people_fully_vaccinated_per_hundred, color = "Percentage Fully Vaccinated")) +
-  geom_point(aes(y = rate_of_uptake, color = "Uptake Rate")) +
-  labs(
-    x = "State",
-    y = "Percentage",
-    title = "Percentage of People Fully Vaccinated \nand the Rate of Uptake by State",
-    color = "Legend") +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(text = element_text(size = 8),
-        axis.text.x = element_text(angle = 90, hjust = 1)) +
-  scale_color_manual(values = colors)
-```
+Dose Allocation by Type in Each State Plot
 
 ```{r}
 all_vacc_df %>% 
@@ -383,10 +424,9 @@ age_df =
     cdc_case_earliest_dt = as.factor(cdc_case_earliest_dt)) %>% 
   mutate(
     series_complete_pop_pct = 100 * series_complete_pop_pct)
-```
 
-```{r}
-age_df %>% 
+age_graph = 
+  age_df %>% 
   filter(
     cdc_case_earliest_dt == "2021-11-28") %>%
   ggplot(aes(x = agegroupvacc, y = series_complete_pop_pct)) +
@@ -401,9 +441,29 @@ age_df %>%
 Trend of Vaccination Rate by Age
 
 ```{r}
+age_line_df = 
+  GET("https://data.cdc.gov/resource/gxj9-t96f.csv",
+      query = list("$limit" = 10000)) %>% 
+  content() %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    cdc_case_earliest_dt = as.factor(cdc_case_earliest_dt),
+    date = as.Date(cdc_case_earliest_dt),) %>% 
+  mutate(
+    series_complete_pop_pct = 100 * series_complete_pop_pct)
 
+age_line = 
+  age_line_df %>% 
+  ggplot(aes(x = date, y = series_complete_pop_pct, color = agegroupvacc)) +
+  geom_line(aes(group = agegroupvacc)) +
+  scale_x_date(date_labels = "%b %y", date_breaks  = "1 month") +
+  labs(
+    x = "Date",
+    y = "Percent Vaccinated",
+    title = "Trend of Vaccination Rate by \nAge Groups \n Present Day",
+    color = "Age Group") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
-
 
 Vaccination Rate by Race
   Note: Race/Ethnicity was only available for 145,361,148 (73.3%) people fully vaccinated.
@@ -428,10 +488,9 @@ race_df =
     NHAIAN = "American Indian/Alaska Native",
     NHNHOPI = "Native Hawaiian/Other Pacific Islander")) %>% 
   select(demographic_category, series_complete_pop_pct)
-```
 
-```{r}
-race_df %>% 
+race_graph = 
+  race_df %>% 
   mutate(
     demographic_category = fct_reorder(demographic_category, series_complete_pop_pct)
   ) %>% 
@@ -441,6 +500,42 @@ race_df %>%
     x = "Race/Ethnicity",
     y = "Percentage",
     title = "Vaccination Rate by Race/Ethnicity") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Trend of Vaccination Rate by Race
+
+```{r}
+race_line_df = 
+  GET("https://data.cdc.gov/resource/km4m-vcsb.csv",
+      query = list("$limit" = 10000)) %>% 
+  content() %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    date = as.factor(date),
+    date = as.Date(date),
+    demographic_category = str_replace(demographic_category, "Race_eth_", "")
+  ) %>% 
+  filter(
+    demographic_category %in% c("NHBlack", "NHWhite", "Hispanic", "NHAIAN", "NHAsian", "NHNHOPI")) %>% 
+  mutate(
+    demographic_category = recode(demographic_category, NHBlack = "Black",
+    NHWhite = "White",
+    NHAsian = "Asian",
+    NHAIAN = "American Indian/Alaska Native",
+    NHNHOPI = "Native Hawaiian/Other Pacific Islander")) %>% 
+  select(date, demographic_category, series_complete_pop_pct)
+
+race_line = 
+  race_line_df %>% 
+  ggplot(aes(x = date, y = series_complete_pop_pct, color = demographic_category)) +
+  geom_line(aes(group = demographic_category)) +
+  scale_x_date(date_labels = "%b %y", date_breaks  = "1 month") +
+  labs(
+    x = "Date",
+    y = "Percent Vaccinated",
+    title = "Trend of Vaccination Rate by Race/Ethnicity \n Present Day",
+    color = "Race/Ethnicity") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -459,10 +554,9 @@ sex_df =
     demographic_category = str_replace(demographic_category, "Sex_", "")
   ) %>% 
   select(demographic_category, series_complete_pop_pct)
-```
 
-```{r}
-sex_df %>% 
+sex_graph = 
+  sex_df %>% 
   ggplot(aes(x = demographic_category, y = series_complete_pop_pct)) +
   geom_col(fill = "blue") +
   labs(
@@ -470,5 +564,40 @@ sex_df %>%
     y = "Percentage",
     title = "Vaccination Rate by Sex") +
   theme(plot.title = element_text(hjust = 0.5))
+```
+
+Trend of Vaccination Rate by Sex
+
+```{r}
+sex_line_df = 
+  GET("https://data.cdc.gov/resource/km4m-vcsb.csv",
+      query = list("$limit" = 10000)) %>% 
+  content() %>% 
+  janitor::clean_names() %>% 
+  mutate(date = as.factor(date),
+         date = as.Date((date))) %>% 
+  filter(demographic_category %in% c("Sex_Male", "Sex_Female")) %>% 
+  mutate(
+    demographic_category = str_replace(demographic_category, "Sex_", "")
+  ) %>% 
+  select(date, demographic_category, series_complete_pop_pct)
+
+sex_line = 
+  sex_line_df %>% 
+  ggplot(aes(x = date, y = series_complete_pop_pct, color = demographic_category)) +
+  geom_line(aes(group = demographic_category)) +
+  scale_x_date(date_labels = "%b %y", date_breaks  = "1 month") +
+  labs(
+    x = "Date",
+    y = "Percent Vaccinated",
+    title = "Trend of Vaccination Rate by Sex \n Present Day",
+    color = "Sex") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+gridExtra::grid.arrange(age_line, age_graph)
+gridExtra::grid.arrange(race_line, race_graph)
+gridExtra::grid.arrange(sex_line, sex_graph)
 ```
 

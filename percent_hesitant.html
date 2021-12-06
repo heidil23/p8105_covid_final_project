@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Kaila Boyer" />
+
+<meta name="date" content="2021-11-22" />
+
+<title>vaccination hesitant</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="website.html">Home</a>
+</li>
+<li>
+  <a href="report.html">Report</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">vaccination hesitant</h1>
+<h4 class="author">Kaila Boyer</h4>
+<h4 class="date">11/22/2021</h4>
+
+</div>
+
+
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+## ✓ tibble  3.1.4     ✓ dplyr   1.0.7
+## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+## ✓ readr   2.0.1     ✓ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(readr)
+library(rvest)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;rvest&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:readr&#39;:
+## 
+##     guess_encoding</code></pre>
+<pre class="r"><code>library(httr)
+library(lubridate)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;lubridate&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     date, intersect, setdiff, union</code></pre>
+<pre class="r"><code>vax &lt;- GET(&quot;https://data.cdc.gov/resource/q9mh-h2tw.csv&quot;) %&gt;% content(&quot;parsed&quot;)</code></pre>
+<pre><code>## Rows: 1000 Columns: 21</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (8): county_name, state, svi_category, cvac_category, geographical_poin...
+## dbl (13): fips_code, estimated_hesitant, estimated_hesitant_or_unsure, estim...</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>vax &lt;- vax %&gt;% select(county_name, state, estimated_hesitant, estimated_hesitant_or_unsure,
+                      estimated_strongly_hesitant, social_vulnerability_index, svi_category,
+                      percent_adults_fully, percent_hispanic, percent_non_hispanic_american,
+                      percent_non_hispanic_asian, percent_non_hispanic_black, 
+                      percent_non_hispanic_native, percent_non_hispanic_white)
+
+GET(&quot;https://data.cdc.gov/resource/hkhc-f7hg.csv&quot;)</code></pre>
+<pre><code>## Response [https://data.cdc.gov/resource/hkhc-f7hg.csv]
+##   Date: 2021-12-05 02:38
+##   Status: 200
+##   Content-Type: text/csv; charset=UTF-8
+##   Size: 52.5 kB
+## &quot;data_as_of&quot;,&quot;start_date&quot;,&quot;end_date&quot;,&quot;mmwr_year&quot;,&quot;mmwr_week&quot;,&quot;week_ending_dat...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2019-12-29T00:00:00.000&quot;,&quot;2020-01-04T00:00:00.000&quot;...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2019-12-29T00:00:00.000&quot;,&quot;2020-01-04T00:00:00.000&quot;...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2019-12-29T00:00:00.000&quot;,&quot;2020-01-04T00:00:00.000&quot;...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2020-01-05T00:00:00.000&quot;,&quot;2020-01-11T00:00:00.000&quot;...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2020-01-05T00:00:00.000&quot;,&quot;2020-01-11T00:00:00.000&quot;...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2020-01-05T00:00:00.000&quot;,&quot;2020-01-11T00:00:00.000&quot;...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2020-01-12T00:00:00.000&quot;,&quot;2020-01-18T00:00:00.000&quot;...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2020-01-12T00:00:00.000&quot;,&quot;2020-01-18T00:00:00.000&quot;...
+## &quot;2021-12-01T00:00:00.000&quot;,&quot;2020-01-12T00:00:00.000&quot;,&quot;2020-01-18T00:00:00.000&quot;...
+## ...</code></pre>
+<pre class="r"><code>vax_1 &lt;- vax %&gt;% group_by(state) %&gt;% summarise(mean_hesitant = mean(estimated_hesitant, na.rm = T)*100, 
+                                      mean_hes_unsure = mean(estimated_hesitant_or_unsure, na.rm = T)*100, 
+                                      mean_strong_hesitant = mean(estimated_strongly_hesitant, na.rm = T)*100, total_hesitant = sum(mean_hes_unsure, mean_strong_hesitant, mean_hesitant))  %&gt;% arrange(desc(total_hesitant)) %&gt;% select(state, total_hesitant, everything()) 
+
+
+#making plot about vaccine hesitancy by state (combined mean % of the 3 vax hesitancy categories)
+vax_1 %&gt;% ggplot(aes(x = reorder(state, +total_hesitant), y = total_hesitant)) + 
+  geom_col(fill = &quot;Navy blue&quot;) +
+  coord_flip() + 
+  xlab(&quot;State&quot;)+ 
+  ylab(&quot;Total % of Vaccine Hesitancy&quot;) + 
+  theme_minimal()</code></pre>
+<p><img src="percent_hesitant_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code># want to look at hesitancy and svi then race 
+vax_2 &lt;- vax %&gt;% select(state, social_vulnerability_index, svi_category, percent_hispanic, percent_non_hispanic_white, percent_non_hispanic_asian, percent_non_hispanic_black, percent_non_hispanic_native, estimated_hesitant, estimated_hesitant_or_unsure,estimated_strongly_hesitant) 
+
+vax_2 &lt;- vax_2 %&gt;% group_by(state) %&gt;%
+  summarise(mean_hesitant = mean(estimated_hesitant, na.rm = T)*100, 
+            mean_hes_unsure = mean(estimated_hesitant_or_unsure, na.rm = T)*100, 
+            mean_strong_hesitant = mean(estimated_strongly_hesitant, na.rm = T)*100,
+            total_hesitant = sum(mean_hes_unsure, mean_strong_hesitant, mean_hesitant), 
+            mean_percent_hisp = mean(percent_hispanic, na.rm = T)*100, 
+            mean_NH_black = mean(percent_non_hispanic_black, na.rm = T)*100, 
+            mean_NH_asian = mean(percent_non_hispanic_asian, na.rm = T)*100, 
+            mean_NH_white = mean(percent_non_hispanic_white, na.rm = T)*100, 
+            mean_NH_native = mean(percent_non_hispanic_native, na.rm = T)*100)
+
+vax_2a &lt;- vax_2 %&gt;% group_by(state) %&gt;% pivot_longer(
+  cols = c(mean_NH_white, mean_NH_black, mean_NH_native, mean_NH_asian, mean_percent_hisp), 
+  names_to = &quot;ethnicity&quot;, 
+  values_to = &quot;percent&quot;
+)
+
+#not a fan of this plot 
+vax_2a %&gt;% ggplot(aes(x = state, y = percent, fill = ethnicity)) + 
+  geom_col(position = &quot;stack&quot;) +
+  scale_fill_viridis_d()+
+  theme( 
+    axis.text.x = element_text(angle = 90)) + 
+  ylab(&quot;Percent&quot;) + 
+  xlab(&quot;State&quot;) </code></pre>
+<p><img src="percent_hesitant_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>#is there a significant difference of vaccine hesitancy and race/ethnicity - odd result 
+fit1 &lt;- lm(total_hesitant ~ as.factor(ethnicity), data = vax_2a)
+summary(fit1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = total_hesitant ~ as.factor(ethnicity), data = vax_2a)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -21.59 -15.01   0.54  12.40  35.63 
+## 
+## Coefficients:
+##                                         Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept)                            3.782e+01  2.779e+00   13.61   &lt;2e-16
+## as.factor(ethnicity)mean_NH_black      1.339e-15  3.931e+00    0.00        1
+## as.factor(ethnicity)mean_NH_native    -7.662e-16  3.931e+00    0.00        1
+## as.factor(ethnicity)mean_NH_white     -5.366e-15  3.931e+00    0.00        1
+## as.factor(ethnicity)mean_percent_hisp -1.354e-15  3.931e+00    0.00        1
+##                                          
+## (Intercept)                           ***
+## as.factor(ethnicity)mean_NH_black        
+## as.factor(ethnicity)mean_NH_native       
+## as.factor(ethnicity)mean_NH_white        
+## as.factor(ethnicity)mean_percent_hisp    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 15.47 on 150 degrees of freedom
+## Multiple R-squared:  1.649e-30,  Adjusted R-squared:  -0.02667 
+## F-statistic: 6.183e-29 on 4 and 150 DF,  p-value: 1</code></pre>
+<pre class="r"><code>#looking at strongly hesitant and svi 
+glimpse(vax)</code></pre>
+<pre><code>## Rows: 1,000
+## Columns: 14
+## $ county_name                   &lt;chr&gt; &quot;Tallapoosa County, Alabama&quot;, &quot;Talladega…
+## $ state                         &lt;chr&gt; &quot;ALABAMA&quot;, &quot;ALABAMA&quot;, &quot;ALABAMA&quot;, &quot;ALABAM…
+## $ estimated_hesitant            &lt;dbl&gt; 0.1806, 0.1783, 0.1735, 0.1735, 0.1805, …
+## $ estimated_hesitant_or_unsure  &lt;dbl&gt; 0.2400, 0.2350, 0.2357, 0.2357, 0.2313, …
+## $ estimated_strongly_hesitant   &lt;dbl&gt; 0.1383, 0.1368, 0.1337, 0.1337, 0.1379, …
+## $ social_vulnerability_index    &lt;dbl&gt; 0.89, 0.87, 0.93, 0.73, 0.70, 0.75, 0.58…
+## $ svi_category                  &lt;chr&gt; &quot;Very High Vulnerability&quot;, &quot;Very High Vu…
+## $ percent_adults_fully          &lt;dbl&gt; 0.305, 0.265, 0.394, 0.308, 0.163, 0.357…
+## $ percent_hispanic              &lt;dbl&gt; 0.0242, 0.0229, 0.0053, 0.0146, 0.0315, …
+## $ percent_non_hispanic_american &lt;dbl&gt; 0.0022, 0.0043, 0.0009, 0.0731, 0.0034, …
+## $ percent_non_hispanic_asian    &lt;dbl&gt; 0.0036, 0.0061, 0.0003, 0.0025, 0.0016, …
+## $ percent_non_hispanic_black    &lt;dbl&gt; 0.2697, 0.3237, 0.6938, 0.2354, 0.0073, …
+## $ percent_non_hispanic_native   &lt;dbl&gt; 0.0000, 0.0003, 0.0000, 0.0000, 0.0005, …
+## $ percent_non_hispanic_white    &lt;dbl&gt; 0.6887, 0.6263, 0.2684, 0.6495, 0.9370, …</code></pre>
+<pre class="r"><code>fit2 &lt;- lm(estimated_strongly_hesitant ~ social_vulnerability_index + state, data = vax)
+summary(fit2)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = estimated_strongly_hesitant ~ social_vulnerability_index + 
+##     state, data = vax)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.036416 -0.005135  0.000530  0.005610  0.034994 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                 0.121406   0.001398  86.860  &lt; 2e-16 ***
+## social_vulnerability_index  0.015642   0.001219  12.834  &lt; 2e-16 ***
+## stateALASKA                 0.026715   0.002016  13.252  &lt; 2e-16 ***
+## stateARIZONA               -0.013286   0.002587  -5.136 3.39e-07 ***
+## stateARKANSAS               0.007269   0.001519   4.785 1.97e-06 ***
+## stateCALIFORNIA            -0.095513   0.001623 -58.859  &lt; 2e-16 ***
+## stateCOLORADO              -0.080324   0.001623 -49.487  &lt; 2e-16 ***
+## stateCONNECTICUT           -0.094840   0.003413 -27.791  &lt; 2e-16 ***
+## stateDELAWARE              -0.094446   0.005338 -17.694  &lt; 2e-16 ***
+## stateDISTRICT OF COLUMBIA  -0.090491   0.009104  -9.940  &lt; 2e-16 ***
+## stateFLORIDA               -0.034515   0.001562 -22.097  &lt; 2e-16 ***
+## stateGEORGIA               -0.029365   0.001316 -22.313  &lt; 2e-16 ***
+## stateHAWAII                -0.096142   0.004204 -22.871  &lt; 2e-16 ***
+## stateIDAHO                 -0.002712   0.001781  -1.523   0.1281    
+## stateILLINOIS              -0.068089   0.001475 -46.154  &lt; 2e-16 ***
+## stateINDIANA               -0.044674   0.001688 -26.461  &lt; 2e-16 ***
+## stateIOWA                  -0.048710   0.002336 -20.855  &lt; 2e-16 ***
+## stateKANSAS                -0.028703   0.009121  -3.147   0.0017 ** 
+## stateKENTUCKY              -0.003788   0.003208  -1.181   0.2379    
+## stateMAINE                 -0.046847   0.009122  -5.136 3.40e-07 ***
+## stateMASSACHUSETTS         -0.093780   0.005335 -17.578  &lt; 2e-16 ***
+## stateMICHIGAN              -0.066495   0.001858 -35.797  &lt; 2e-16 ***
+## stateMINNESOTA             -0.086034   0.009123  -9.430  &lt; 2e-16 ***
+## stateMONTANA                0.047016   0.003614  13.009  &lt; 2e-16 ***
+## stateNEBRASKA              -0.071042   0.002652 -26.783  &lt; 2e-16 ***
+## stateOHIO                  -0.042573   0.002690 -15.827  &lt; 2e-16 ***
+## stateTENNESSEE             -0.048805   0.003861 -12.640  &lt; 2e-16 ***
+## stateTEXAS                 -0.051162   0.001485 -34.454  &lt; 2e-16 ***
+## stateVIRGINIA              -0.086266   0.002011 -42.889  &lt; 2e-16 ***
+## stateWASHINGTON            -0.072768   0.003589 -20.275  &lt; 2e-16 ***
+## stateWEST VIRGINIA         -0.050647   0.005333  -9.496  &lt; 2e-16 ***
+## stateWISCONSIN             -0.031146   0.003633  -8.572  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.009036 on 968 degrees of freedom
+## Multiple R-squared:  0.9386, Adjusted R-squared:  0.9367 
+## F-statistic: 477.7 on 31 and 968 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>fit2a &lt;- lm(estimated_strongly_hesitant ~ social_vulnerability_index+ percent_hispanic + percent_non_hispanic_white + percent_non_hispanic_asian + percent_non_hispanic_black +  percent_non_hispanic_native , data = vax)
+
+summary(fit2a)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = estimated_strongly_hesitant ~ social_vulnerability_index + 
+##     percent_hispanic + percent_non_hispanic_white + percent_non_hispanic_asian + 
+##     percent_non_hispanic_black + percent_non_hispanic_native, 
+##     data = vax)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.088342 -0.019927 -0.000775  0.018861  0.148517 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                  0.16878    0.01145  14.737  &lt; 2e-16 ***
+## social_vulnerability_index   0.05064    0.00430  11.775  &lt; 2e-16 ***
+## percent_hispanic            -0.17798    0.01208 -14.731  &lt; 2e-16 ***
+## percent_non_hispanic_white  -0.09956    0.01139  -8.739  &lt; 2e-16 ***
+## percent_non_hispanic_asian  -0.29170    0.03123  -9.341  &lt; 2e-16 ***
+## percent_non_hispanic_black  -0.09647    0.01173  -8.223 6.19e-16 ***
+## percent_non_hispanic_native -0.15579    0.09884  -1.576    0.115    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.02898 on 993 degrees of freedom
+## Multiple R-squared:  0.3523, Adjusted R-squared:  0.3484 
+## F-statistic: 90.04 on 6 and 993 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>broom::tidy(fit2a)</code></pre>
+<pre><code>## # A tibble: 7 × 5
+##   term                        estimate std.error statistic  p.value
+##   &lt;chr&gt;                          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)                   0.169    0.0115      14.7  1.34e-44
+## 2 social_vulnerability_index    0.0506   0.00430     11.8  4.69e-30
+## 3 percent_hispanic             -0.178    0.0121     -14.7  1.43e-44
+## 4 percent_non_hispanic_white   -0.0996   0.0114      -8.74 9.84e-18
+## 5 percent_non_hispanic_asian   -0.292    0.0312      -9.34 6.09e-20
+## 6 percent_non_hispanic_black   -0.0965   0.0117      -8.22 6.19e-16
+## 7 percent_non_hispanic_native  -0.156    0.0988      -1.58 1.15e- 1</code></pre>
+<div id="models-for-hesitancy-and-ses" class="section level1">
+<h1>Models for hesitancy and SES</h1>
+<pre class="r"><code>#outcome : binary (hesitant vs. non-hesitant) --&gt; logistic regression 
+#predictor: social vulnerability index (continuous) 
+#will do a model adjusting for %race of a county &amp; state 
+#can also make a binary variable (white &amp; non-white)</code></pre>
+<div id="map-stuff-for-hestiancy" class="section level2">
+<h2>Map stuff for hestiancy</h2>
+<pre class="r"><code>#glimpse(vax)
+#install.packages(&quot;leaflet&quot;)
+#library(leaflet)
+#?spplot
+#leaflet(vax$county_boundary, &quot;estimated_hesitant&quot;)</code></pre>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
